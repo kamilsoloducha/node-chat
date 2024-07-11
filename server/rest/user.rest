@@ -1,0 +1,19 @@
+@host = http://localhost:3000
+
+### register user
+POST {{host}}/user/register
+Content-Type: application/json
+
+{
+    "userName": "kamil3",
+    "password": "password"
+}
+
+### login user
+POST {{host}}/user/login
+Content-Type: application/json
+
+{
+    "userName": "kamil2",
+    "password": "password"
+}

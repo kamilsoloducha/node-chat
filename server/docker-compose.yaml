@@ -1,0 +1,10 @@
+version: '3.5'
+services:
+  chat-server:
+    container_name: chat-server
+    image: kamilsoloducha/chat-server:latest
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    ports:
+      - 3000:3000
