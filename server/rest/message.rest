@@ -1,0 +1,15 @@
+@host = http://localhost:3000
+
+### send message to chat
+POST {{host}}/messages HTTP/1.1
+Content-Type: application/json
+
+{
+    "chatId":1,
+    "senderId":2,
+    "text":"a to druga"
+}
+
+### get all message from the chat
+GET {{host}}/messages/chat/1/user/1 HTTP/1.1
+Content-Type:  application/json

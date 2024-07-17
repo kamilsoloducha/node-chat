@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/database/entities/user.entity';
+import { User } from 'src/chat/database/entities/user.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
-export class UsersService {
+export class UserService {
   constructor(
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
   ) {}
 
-  async add({
+  add({
     userName,
     password,
   }: {
@@ -55,5 +55,12 @@ export class UsersService {
       query = query.andWhere('user.password = :password', { password });
     }
     return query.getOne();
+  }
+
+  findById(userId: number): Promise<User> {
+    return this.usersRepository
+      .createQueryBuilder('user')
+      .where('user.id = :userId', { userId })
+      .getOne();
   }
 }

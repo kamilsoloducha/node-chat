@@ -1,0 +1,28 @@
+@host = http://localhost:3000
+
+### get chats of user
+@userId = 2
+GET {{host}}/chats/user/{{userId}}
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIsInVzZXJuYW1lIjoia2FtaWwiLCJpYXQiOjE3MjEyMDk5MzUsImV4cCI6MTcyMTIwOTk5NX0.KGMQ3bnyXPtkpBs1LWqaCCZwGhABd-u4k98iSfR-Xv4
+
+### create chat between users
+POST {{host}}/chats HTTP/1.1
+Content-Type: application/json
+
+{
+    "senderId":1,
+    "receiverId":2
+}
+
+### invite user to chat
+POST {{host}}/chats/invite
+Content-Type: application/json
+
+{
+    "senderId":1,
+    "invitedId":3,
+    "chatId":1
+}
+
+###

@@ -1,19 +1,19 @@
 @host = http://localhost:3000
 
 ### register user
-POST {{host}}/user/register
+POST {{host}}/users/register
 Content-Type: application/json
 
 {
-    "userName": "kamil3",
+    "userName": "kamil",
     "password": "password"
 }
 
 ### login user
-POST {{host}}/user/login
+POST {{host}}/users/login
 Content-Type: application/json
 
 {
-    "userName": "kamil2",
+    "userName": "kamil",
     "password": "password"
 }
