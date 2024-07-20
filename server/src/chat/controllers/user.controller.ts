@@ -1,10 +1,10 @@
-import { Body, Controller, HttpStatus, Post, Res } from '@nestjs/common';
+import { Body, Controller, HttpStatus, Post, Put, Res } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiResponse } from '@nestjs/swagger';
 import { Response } from 'express';
 import { Public } from 'src/api/metadatas/is-public.decorator';
 import { AuthService } from 'src/auth.service';
 import { UserService } from 'src/chat/database/user.service';
-import { CommonErrorResponse } from 'src/chat/models/common-error.response';
+import { CommonErrorResponse, RegisterErrorCode } from 'src/chat/models/common-error.response';
 import { LoginRequest } from 'src/chat/models/login.request';
 import { LoginResponse } from 'src/chat/models/login.response';
 import { RegisterRequest } from 'src/chat/models/register.request';
@@ -20,11 +20,12 @@ export class UserController {
   @Public()
   @Post('register')
   @ApiResponse({ status: HttpStatus.CREATED })
-  @ApiBadRequestResponse({ status: HttpStatus.BAD_REQUEST, type: CommonErrorResponse })
+  @ApiBadRequestResponse({ status: HttpStatus.BAD_REQUEST, type: CommonErrorResponse<RegisterErrorCode> })
   async register(@Body() request: RegisterRequest, @Res() response: Response): Promise<void> {
     if (await this.userService.exists({ userName: request.userName })) {
-      const errorResponse = new CommonErrorResponse();
+      const errorResponse = new CommonErrorResponse<RegisterErrorCode>();
       errorResponse.message = 'UserName has been already taken';
+      errorResponse.errorCode = 'USER_ALREADY_EXISTS';
       response.status(HttpStatus.BAD_REQUEST).json(errorResponse);
       return;
     }
@@ -38,7 +39,7 @@ export class UserController {
   }
 
   @Public()
-  @Post('login')
+  @Put('login')
   async login(@Body() request: LoginRequest, @Res() response: Response): Promise<void> {
     const user = await this.userService.find({
       userName: request.userName,
