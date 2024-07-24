@@ -1,10 +1,10 @@
 import { useEffectOnce } from 'core/hooks/useEffectOnce';
 import { useUserStorage } from 'core/hooks/useUserStorage';
-import { ReactElement, ReactNode } from 'react';
-import http from 'core/http/http.service';
+import { ReactElement } from 'react';
+import { instance as http } from 'core/http/http.service';
 import { AxiosError } from 'axios';
 
-export default function AxiosEx({ chrildren }: AxiosExProps): ReactElement {
+export default function AxiosEx({ children }: AxiosExProps): ReactElement {
   const { get } = useUserStorage();
 
   useEffectOnce(() => {
@@ -38,9 +38,9 @@ export default function AxiosEx({ chrildren }: AxiosExProps): ReactElement {
       },
     );
   });
-  return <>{chrildren}</>;
+  return <>{children}</>;
 }
 
 type AxiosExProps = {
-  chrildren?: ReactNode;
+  children?: ReactElement;
 };

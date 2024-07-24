@@ -24,12 +24,12 @@ export function LoginForm(): ReactElement {
       const session: UserSession = {
         id: loginResponse.userId,
         token: loginResponse.accessToken,
-        name: '',
+        name: form.userName,
         expirationDate: new Date(),
       };
       set(session);
 
-      socketProvider.init({ userId: loginResponse.userId });
+      socketProvider.connect();
 
       navigate('/chat');
     } else {

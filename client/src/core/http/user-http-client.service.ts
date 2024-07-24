@@ -1,6 +1,6 @@
 import { AxiosError, AxiosResponse } from 'axios';
 import { HttpError } from 'core/http/http-error.model';
-import http from 'core/http/http.service';
+import { instance as http } from 'core/http/http.service';
 
 const USERS_PATH = '/users';
 

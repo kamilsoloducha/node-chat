@@ -10,6 +10,7 @@ import { MainPage } from 'pages/main/main.page';
 import { Provider } from 'react-redux';
 import { store } from 'store/store';
 import { Websocket } from 'core/websockets/websocket';
+import AxiosEx from 'core/components/AxiosEx';
 
 const container = document.getElementById('root') as HTMLDivElement;
 const root = createRoot(container);
@@ -45,6 +46,7 @@ const router = createBrowserRouter(routes);
 
 root.render(
   <React.StrictMode>
+    <AxiosEx />
     <Provider store={store}>
       <Websocket>
         <RouterProvider router={router}></RouterProvider>
