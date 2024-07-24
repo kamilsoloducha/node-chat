@@ -61,6 +61,6 @@ export type LoginRequest = {
 
 export type LoginResponse = {
   isSuccessful: true;
-  userId: number;
+  userId: string;
   accessToken: string;
 };

@@ -3,6 +3,7 @@
 ### send message to chat
 POST {{host}}/messages HTTP/1.1
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsInVzZXJuYW1lIjoidGVzdDEiLCJpYXQiOjE3MjE4NTMzODQsImV4cCI6MTcyMTg1Njk4NH0.yBGb1Dba0gVetrq3JVsx-svKJ3xrNW06R4vfQp1e3YE
 
 {
     "chatId":1,

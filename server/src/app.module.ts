@@ -9,6 +9,7 @@ import { Message } from 'src/chat/database/entities/message.entity';
 import { ChatModule } from 'src/chat/chat.module';
 import { AuthService } from 'src/auth.service';
 import { JwtModule } from '@nestjs/jwt';
+import { WebSocketModule } from 'src/websocket/websocket.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { JwtModule } from '@nestjs/jwt';
       signOptions: { expiresIn: '60s' },
     }),
     ChatModule,
+    WebSocketModule,
   ],
   controllers: [AppController],
   providers: [AppService, AuthService],

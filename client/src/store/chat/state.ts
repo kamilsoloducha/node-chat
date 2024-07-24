@@ -8,6 +8,8 @@ export type ChatState = {
   isChatLoading: boolean;
   messages: ChatMessage[];
   areMessagesLoading: boolean;
+
+  isConnected: boolean;
 };
 
 export const initialChatState: ChatState = {
@@ -18,4 +20,6 @@ export const initialChatState: ChatState = {
   isChatLoading: false,
   messages: [],
   areMessagesLoading: false,
+
+  isConnected: false,
 };

@@ -9,6 +9,7 @@ import { loginFormInitialValues, LoginForm as LoginFormModel } from 'pages/login
 import { validateLoginForm } from 'pages/login/services/login-form.validator';
 import { ReactElement, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { socketProvider } from 'core/websockets/socket.service';
 
 export function LoginForm(): ReactElement {
   const [requestError, setRequestError] = useState<string | undefined>('');
@@ -21,12 +22,15 @@ export function LoginForm(): ReactElement {
 
     if (loginResponse.isSuccessful) {
       const session: UserSession = {
-        id: loginResponse.userId?.toString(),
+        id: loginResponse.userId,
         token: loginResponse.accessToken,
         name: '',
         expirationDate: new Date(),
       };
       set(session);
+
+      socketProvider.init({ userId: loginResponse.userId });
+
       navigate('/chat');
     } else {
       setRequestError(loginResponse.errorMessage);

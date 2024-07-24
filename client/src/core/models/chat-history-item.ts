@@ -1,21 +1,21 @@
 export type ChatUser = {
-  id: number;
+  id: string;
   name: string;
 };
 
 export type Chat = {
-  id: number;
+  id: string;
   name: string;
   users: ChatUser[];
 };
 
 export type ChatHistoryItem = {
-  id: number;
+  id: string;
   name: string;
 };
 
 export type ChatMessage = {
   text: string;
-  senderId: number;
-  timeStamp: string;
+  senderId: string;
+  timeStamp: number;
 };

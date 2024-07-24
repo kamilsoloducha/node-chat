@@ -14,6 +14,7 @@ import { Message } from 'src/chat/database/entities/message.entity';
 import { User } from 'src/chat/database/entities/user.entity';
 import { MessageService } from 'src/chat/database/message.service';
 import { UserService } from 'src/chat/database/user.service';
+import { WebSocketModule } from 'src/websocket/websocket.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { UserService } from 'src/chat/database/user.service';
       envFilePath: 'development.env',
     }),
     TypeOrmModule.forFeature([User, Chat, Message]),
+    WebSocketModule,
   ],
   exports: [TypeOrmModule],
   controllers: [UserController, ChatController, MessageController],

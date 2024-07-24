@@ -32,9 +32,18 @@ export const chatSlice = createSlice({
       state.areMessagesLoading = false;
       state.messages = state.messages.concat(action.payload).sort((a, b) => new Date(a.timeStamp).getDate() - new Date(b.timeStamp).getDate());
     },
+
+    changeConnectionStatus: (state: ChatState, action: PayloadAction<boolean>) => {
+      state.isConnected = action.payload;
+    },
+    addNewMessage: (state: ChatState, action: PayloadAction<a.AddNewMessage>) => {
+      if (state.selectedChat?.id === action.payload.chatId) {
+        state.messages.push({ text: action.payload.text, senderId: action.payload.senderId, timeStamp: new Date(action.payload.timeStamp) });
+      }
+    },
   },
 });
 
 export default chatSlice.reducer;
 
-export const { actionFailed, loadHistory, loadHistorySuccessfully, getChat, getChatSuccessfully, getMessages, getMessagesSuccess } = chatSlice.actions;
+export const { actionFailed, loadHistory, loadHistorySuccessfully, getChat, getChatSuccessfully, getMessages, getMessagesSuccess, changeConnectionStatus, addNewMessage } = chatSlice.actions;

@@ -8,6 +8,7 @@ import { MessageService } from 'src/chat/database/message.service';
 import { CreateMessageRequest } from 'src/chat/models/createMessage.request';
 import { CreateMessageResponse } from 'src/chat/models/createMessage.response';
 import { MessageResponse } from 'src/chat/models/message.response';
+import { ChatGateway, WebSocketMessage } from 'src/websocket/chat.gateway';
 
 @Controller({ path: 'messages' })
 export class MessageController {
@@ -15,6 +16,7 @@ export class MessageController {
     private readonly chatService: ChatService,
     private readonly messageService: MessageService,
     private readonly hasher: IHasher,
+    private readonly webSocket: ChatGateway,
   ) {}
 
   @Get('chat/:chatId/user/:userId')
@@ -64,6 +66,14 @@ export class MessageController {
     message.userId = senderId;
 
     message = await this.messageService.saveMessage(message);
+
+    const wsMessage: WebSocketMessage = {
+      ...request,
+      timeStamp: message.timestamp.toJSON(),
+    };
+    chat.users.forEach((user) => {
+      this.webSocket.sendMessage(user.id, wsMessage);
+    });
 
     const messageResponse: CreateMessageResponse = {
       messageId: this.hasher.encode(message.id),
