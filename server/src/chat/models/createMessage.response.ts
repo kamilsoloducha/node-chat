@@ -1,3 +1,3 @@
 export type CreateMessageResponse = {
-  messageId: number;
+  messageId: string;
 };

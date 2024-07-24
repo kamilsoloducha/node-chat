@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthGuard } from 'src/api/guards/auth.guard';
+import { FakeHasher, Hasher, IHasher } from 'src/api/services/hasher';
 import { AuthService } from 'src/auth.service';
 import { ChatController } from 'src/chat/controllers/chat.controller';
 import { MessageController } from 'src/chat/controllers/message.controller';
@@ -14,9 +16,21 @@ import { MessageService } from 'src/chat/database/message.service';
 import { UserService } from 'src/chat/database/user.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Chat, Message])],
+  imports: [
+    ConfigModule.forRoot({
+      envFilePath: 'development.env',
+    }),
+    TypeOrmModule.forFeature([User, Chat, Message]),
+  ],
   exports: [TypeOrmModule],
   controllers: [UserController, ChatController, MessageController],
-  providers: [UserService, ChatService, MessageService, AuthService, { provide: APP_GUARD, useClass: AuthGuard }],
+  providers: [
+    UserService,
+    ChatService,
+    MessageService,
+    AuthService,
+    { provide: APP_GUARD, useClass: AuthGuard },
+    { provide: IHasher, useClass: process.env.ENVIRONMENT === 'Development' ? FakeHasher : Hasher },
+  ],
 })
 export class ChatModule {}

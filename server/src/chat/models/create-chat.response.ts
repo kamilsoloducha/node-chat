@@ -1,3 +1,3 @@
 export type CreteChatResponse = {
-  chatId: number;
+  chatId: string;
 };

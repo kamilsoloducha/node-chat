@@ -17,35 +17,29 @@ export function RegisterForm(): ReactElement {
 
   const onRegisterFormSubmit = async (form: RegisterFormModel) => {
     const registerRequest: RegisterRequest = { ...form };
-    try {
-      await register(registerRequest);
-    } catch (error: unknown) {
-      if (error instanceof AxiosError) {
-        if (error.response?.status === 400) {
-          setRequestError(error.response?.data?.message);
-        } else {
-          setRequestError(error.message);
-        }
-        return;
+    const registerResponse = await register(registerRequest);
+    if (!registerResponse.isSuccessful) {
+      if (registerResponse.friendlyErrorMessage) {
+        formik.errors.userName = registerResponse.friendlyErrorMessage;
+      } else {
+        setRequestError(registerResponse.errorMessage);
       }
     }
 
     const loginRequest: LoginRequest = { ...form };
-    try {
-      const loginResponse = await login(loginRequest);
+    const loginResponse = await login(loginRequest);
+
+    if (loginResponse.isSuccessful) {
       const session: UserSession = {
-        id: loginResponse.data.userId + '',
-        token: loginResponse.data.accessToken,
+        id: loginResponse.userId?.toString(),
+        token: loginResponse.accessToken,
         name: '',
         expirationDate: new Date(),
       };
       set(session);
       navigate('/chat');
-    } catch (error: unknown) {
-      if (error instanceof AxiosError) {
-        setRequestError(error.message);
-        return;
-      }
+    } else {
+      setRequestError(loginResponse.errorMessage);
     }
   };
 
@@ -53,7 +47,7 @@ export function RegisterForm(): ReactElement {
 
   return (
     <>
-      <div className="w-full h-fit bg-white rounded-3xl shadow-lg px-20 pb-20">
+      <div className="w-full h-full bg-white px-5 lg:px-20 lg:pb-20 lg:rounded-3xl lg:shadow-lg lg:h-fit">
         <FormHeader header="Sign In" />
         <p className="w-full text-center text-gray-500">Welcome! Create a new account with:</p>
         <form

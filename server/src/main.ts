@@ -14,6 +14,8 @@ function setupSwagger(app: INestApplication): void {
 }
 
 async function bootstrap() {
+  console.log(process.env);
+
   const app = await NestFactory.create(AppModule);
   app.use(validationMiddelware);
   app.useGlobalPipes(new ValidationPipe());

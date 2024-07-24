@@ -1,4 +1,4 @@
 export class CreateChatRequest {
-  senderId: number;
-  receiverId: number;
+  senderId: string;
+  receiverId: string;
 }

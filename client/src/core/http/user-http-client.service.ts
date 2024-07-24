@@ -1,10 +1,27 @@
-import { AxiosResponse } from 'axios';
+import { AxiosError, AxiosResponse } from 'axios';
+import { HttpError } from 'core/http/http-error.model';
 import http from 'core/http/http.service';
 
 const USERS_PATH = '/users';
 
-export function register(request: RegisterRequest): Promise<AxiosResponse<RegisterResponse>> {
-  return http.post<RegisterResponse>(`${USERS_PATH}/register`, request);
+export async function register(request: RegisterRequest): Promise<RegisterResponse | HttpError> {
+  try {
+    const { data } = await http.post<RegisterResponse, AxiosResponse<RegisterResponse, RegisterRequest>, RegisterRequest>(`${USERS_PATH}/register`, request);
+    return { ...data, isSuccessful: true };
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      const httpError: HttpError = {
+        isSuccessful: false,
+        statusCode: error.response?.status,
+        friendlyErrorMessage: error.response?.data.errorCode === 'USER_ALREADY_EXISTS' ? 'User name has been already taken' : undefined,
+        errorMessage: error.message,
+        errorCode: error.response?.data.errorCode,
+      };
+
+      return httpError as any;
+    }
+    return { errorMessage: 'Internal server error. Please try again later.', isSuccessful: false };
+  }
 }
 
 export type RegisterRequest = {
@@ -14,11 +31,27 @@ export type RegisterRequest = {
 };
 
 export type RegisterResponse = {
+  isSuccessful: true;
   userId: number;
 };
 
-export function login(request: LoginRequest): Promise<AxiosResponse<LoginResponse>> {
-  return http.put<LoginResponse>(`${USERS_PATH}/login`, request);
+export async function login(request: LoginRequest): Promise<LoginResponse | HttpError> {
+  try {
+    const { data } = await http.put<LoginResponse, AxiosResponse<LoginResponse, LoginRequest>, LoginRequest>(`${USERS_PATH}/login`, request);
+    return { ...data, isSuccessful: true };
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      const httpError: HttpError = {
+        isSuccessful: false,
+        statusCode: error.response?.status,
+        errorMessage: 'Invalid username or password.',
+        errorCode: error.response?.data.errorCode,
+      };
+
+      return httpError as any;
+    }
+    return { errorMessage: 'Internal server error. Please try again later.', isSuccessful: false };
+  }
 }
 
 export type LoginRequest = {
@@ -27,6 +60,7 @@ export type LoginRequest = {
 };
 
 export type LoginResponse = {
+  isSuccessful: true;
   userId: number;
   accessToken: string;
 };

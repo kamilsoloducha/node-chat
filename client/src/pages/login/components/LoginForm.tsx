@@ -15,27 +15,25 @@ export function LoginForm(): ReactElement {
   const navigate = useNavigate();
   const { set } = useUserStorage();
 
-  const onRegisterFormSubmit = async (form: LoginFormModel) => {
+  const onLoginFormSubmit = async (form: LoginFormModel) => {
     const loginRequest: LoginRequest = { ...form };
-    try {
-      const loginResponse = await login(loginRequest);
+    const loginResponse = await login(loginRequest);
+
+    if (loginResponse.isSuccessful) {
       const session: UserSession = {
-        id: loginResponse.data.userId + '',
-        token: loginResponse.data.accessToken,
+        id: loginResponse.userId?.toString(),
+        token: loginResponse.accessToken,
         name: '',
         expirationDate: new Date(),
       };
       set(session);
       navigate('/chat');
-    } catch (error: unknown) {
-      if (error instanceof AxiosError) {
-        setRequestError(error.message);
-        return;
-      }
+    } else {
+      setRequestError(loginResponse.errorMessage);
     }
   };
 
-  const formik = useFormik({ initialValues: loginFormInitialValues, onSubmit: onRegisterFormSubmit, validate: validateLoginForm, validateOnBlur: true });
+  const formik = useFormik({ initialValues: loginFormInitialValues, onSubmit: onLoginFormSubmit, validate: validateLoginForm, validateOnBlur: true });
 
   return (
     <>
@@ -66,7 +64,7 @@ export function LoginForm(): ReactElement {
             value="Submit form"
             disabled={formik.isSubmitting || (!formik.isValid && Object.entries(formik.touched).every((x) => x))}
           />
-          {requestError && <div>{requestError}</div>}
+          {requestError && <div className="text-red-600">{requestError}</div>}
         </form>
 
         <p className="w-full text-center text-gray-500">or:</p>
@@ -93,6 +91,7 @@ export function LoginForm(): ReactElement {
           >
             Sign up
           </a>
+          .
         </p>
       </div>
     </>

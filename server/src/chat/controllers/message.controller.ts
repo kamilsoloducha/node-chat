@@ -1,5 +1,7 @@
 import { Body, Controller, Get, HttpStatus, Param, Post, Res } from '@nestjs/common';
+import { hash } from 'crypto';
 import { Response } from 'express';
+import { IHasher } from 'src/api/services/hasher';
 import { ChatService } from 'src/chat/database/chat.service';
 import { Message } from 'src/chat/database/entities/message.entity';
 import { MessageService } from 'src/chat/database/message.service';
@@ -12,12 +14,13 @@ export class MessageController {
   constructor(
     private readonly chatService: ChatService,
     private readonly messageService: MessageService,
+    private readonly hasher: IHasher,
   ) {}
 
   @Get('chat/:chatId/user/:userId')
   async getAllMessage(@Param() params: any, @Res() response: Response): Promise<void> {
-    const chatId = parseInt(params.chatId);
-    const userId = parseInt(params.userId);
+    const chatId = this.hasher.decode(params.chatId);
+    const userId = this.hasher.decode(params.userId);
 
     if (!chatId || !userId) {
       response.sendStatus(HttpStatus.BAD_REQUEST);
@@ -25,14 +28,15 @@ export class MessageController {
     }
 
     const chat = await this.chatService.findChatById(chatId);
-    if (!chat.users.some((user) => user.id == userId)) {
+    if (!chat.users.some((user) => user.id === userId)) {
       response.sendStatus(HttpStatus.BAD_REQUEST);
       return;
     }
 
     const messages = chat.messages.map((message) => {
+      const senderId = this.hasher.encode(message.userId);
       return {
-        senderId: message.userId,
+        senderId: senderId,
         text: message.text,
         timeStamp: message.timestamp,
       } as MessageResponse;
@@ -43,9 +47,12 @@ export class MessageController {
 
   @Post()
   async create(@Body() request: CreateMessageRequest, @Res() response: Response): Promise<void> {
-    const chat = await this.chatService.findChatById(request.chatId);
+    const chatId = this.hasher.decode(request.chatId);
+    const chat = await this.chatService.findChatById(chatId);
 
-    if (!chat.users.some((user) => user.id == request.senderId)) {
+    const senderId = this.hasher.decode(request.senderId);
+
+    if (!chat.users.some((user) => user.id === senderId)) {
       response.sendStatus(HttpStatus.BAD_REQUEST);
       return;
     }
@@ -54,12 +61,12 @@ export class MessageController {
     message.chat = chat;
     message.text = request.text;
     message.timestamp = new Date();
-    message.userId = request.senderId;
+    message.userId = senderId;
 
     message = await this.messageService.saveMessage(message);
 
     const messageResponse: CreateMessageResponse = {
-      messageId: message.id,
+      messageId: this.hasher.encode(message.id),
     };
 
     response.status(HttpStatus.CREATED).json(messageResponse);

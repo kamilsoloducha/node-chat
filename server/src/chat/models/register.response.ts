@@ -1,3 +1,3 @@
 export type RegisterResponse = {
-  userId: number;
+  userId: string;
 };

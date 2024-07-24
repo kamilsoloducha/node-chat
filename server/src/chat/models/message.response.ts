@@ -1,5 +1,5 @@
 export type MessageResponse = {
   text: string;
-  senderId: number;
+  senderId: string;
   timeStamp: Date;
 };
