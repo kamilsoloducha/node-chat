@@ -7,6 +7,7 @@ export type ChatState = {
   selectedChat: Chat | undefined;
   isChatLoading: boolean;
   messages: ChatMessage[];
+  isAllLoaded: boolean;
   areMessagesLoading: boolean;
 
   isConnected: boolean;
@@ -19,7 +20,10 @@ export const initialChatState: ChatState = {
   selectedChat: undefined,
   isChatLoading: false,
   messages: [],
+  isAllLoaded: false,
   areMessagesLoading: false,
 
   isConnected: false,
 };
+
+export const pageSize = 30;

@@ -4,12 +4,12 @@ import { Response } from 'express';
 import { Public } from 'src/api/metadatas/is-public.decorator';
 import { IHasher } from 'src/api/services/hasher';
 import { AuthService } from 'src/auth.service';
-import { UserService } from 'src/chat/database/user.service';
 import { CommonErrorResponse, LoginErrorCode, RegisterErrorCode } from 'src/chat/models/common-error.response';
 import { LoginRequest } from 'src/chat/models/login.request';
 import { LoginResponse } from 'src/chat/models/login.response';
 import { RegisterRequest } from 'src/chat/models/register.request';
 import { RegisterResponse } from 'src/chat/models/register.response';
+import { UserService } from 'src/database/user.service';
 
 @Controller('users')
 export class UserController {
@@ -55,7 +55,8 @@ export class UserController {
       const encodedId = this.hasher.encode(user.id);
       const responseMessage: LoginResponse = {
         userId: encodedId,
-        accessToken: authResult.access_token,
+        accessToken: authResult.accessToken,
+        expirationDate: authResult.expirationDate,
       };
       response.status(HttpStatus.OK).json(responseMessage);
     } else {
@@ -64,5 +65,18 @@ export class UserController {
       errorResponse.errorCode = 'BAD_CREDENTIALS';
       response.status(HttpStatus.BAD_REQUEST).json(errorResponse);
     }
+  }
+
+  @Public()
+  @Put('refresh')
+  async refresh(@Body() request: RefreshRequest, @Res() response: Response): Promise<void> {
+    const tokenInfo = await this.authService.refresh(request.token);
+
+    const responseMessage: LoginResponse = {
+      userId: this.hasher.encode(tokenInfo.userId),
+      accessToken: tokenInfo.accessToken,
+      expirationDate: tokenInfo.expirationDate,
+    };
+    response.status(HttpStatus.OK).json(responseMessage);
   }
 }

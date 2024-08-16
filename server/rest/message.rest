@@ -3,7 +3,7 @@
 ### send message to chat
 POST {{host}}/messages HTTP/1.1
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsInVzZXJuYW1lIjoidGVzdDEiLCJpYXQiOjE3MjE4NTMzODQsImV4cCI6MTcyMTg1Njk4NH0.yBGb1Dba0gVetrq3JVsx-svKJ3xrNW06R4vfQp1e3YE
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsInVzZXJuYW1lIjoidGVzdDEiLCJpYXQiOjE3MjIwMTA5MTAsImV4cCI6MTcyMjAxNDUxMH0.EfGgth8kOxsIk7a6Im5UqRk5NU24TDHNBqUSO6_7ZoA
 
 {
     "chatId":1,
@@ -14,3 +14,13 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsInVzZXJuY
 ### get all message from the chat
 GET {{host}}/messages/chat/1/user/1 HTTP/1.1
 Content-Type:  application/json
+
+### get paginated message
+GET {{host}}/messages?chatId=1&take=4&skip=0 HTTP/1.1
+Content-Type:  application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsInVzZXJuYW1lIjoidGVzdDEiLCJpYXQiOjE3MjIwMTA5MTAsImV4cCI6MTcyMjAxNDUxMH0.EfGgth8kOxsIk7a6Im5UqRk5NU24TDHNBqUSO6_7ZoA
+
+### get paginated message by messageid
+GET {{host}}/messages/incremental?chatId=1&take=4&messageId=9 HTTP/1.1
+Content-Type:  application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsInVzZXJuYW1lIjoidGVzdDEiLCJpYXQiOjE3MjIwMTA5MTAsImV4cCI6MTcyMjAxNDUxMH0.EfGgth8kOxsIk7a6Im5UqRk5NU24TDHNBqUSO6_7ZoA

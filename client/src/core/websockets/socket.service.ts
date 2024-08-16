@@ -16,6 +16,7 @@ export const socketProvider: SocketProvider = {
     socketProvider.socket.connect();
   },
   sendMessage: (message: WsMessage) => {
+    console.log(message);
     socketProvider.socket.emit('messageToServer', message);
   },
 };

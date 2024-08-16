@@ -1,12 +1,12 @@
 import { Body, Controller, Get, HttpStatus, Param, Post, Res } from '@nestjs/common';
 import { Response } from 'express';
-import { ChatService } from 'src/chat/database/chat.service';
-import { Chat } from 'src/chat/database/entities/chat.entity';
-import { UserService } from 'src/chat/database/user.service';
 import { CreteChatResponse } from 'src/chat/models/create-chat.response';
 import { CreateChatRequest } from 'src/chat/models/createChat.request';
 import { InviteUserRequest } from 'src/chat/models/invite-user.request';
 import { IHasher } from 'src/api/services/hasher';
+import { ChatService } from 'src/database/chat.service';
+import { Chat } from 'src/database/entities/chat.entity';
+import { UserService } from 'src/database/user.service';
 
 @Controller({ path: 'chats' })
 export class ChatController {
@@ -26,7 +26,37 @@ export class ChatController {
 
     const usersChats = await this.chatService.findChatsByUserId(userId);
 
-    response.status(HttpStatus.OK).json(usersChats);
+    response.status(HttpStatus.OK).json(
+      usersChats.map((chat) => {
+        return { ...chat, id: this.hasher.encode(chat.id) };
+      }),
+    );
+  }
+
+  @Get(':chatId')
+  async getChatDetails(@Param() params: any, @Res() response: Response): Promise<void> {
+    const chatId = this.hasher.decode(params.chatId);
+    if (!chatId) {
+      response.sendStatus(HttpStatus.BAD_REQUEST);
+      return;
+    }
+
+    const chat = await this.chatService.findChatById(chatId);
+
+    response.status(HttpStatus.OK).json({
+      id: this.hasher.encode(chat.id),
+      name: chat.name,
+      users: chat.users.map((user) => {
+        return { id: this.hasher.encode(user.id), name: user.userName };
+      }),
+      messages: chat.messages.map((message) => {
+        return {
+          text: message.text,
+          senderId: this.hasher.encode(message.userId),
+          timeStamp: message.timestamp.valueOf(),
+        };
+      }),
+    });
   }
 
   @Post()

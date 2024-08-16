@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Chat, ChatHistoryItem, ChatMessage } from 'core/models/chat-history-item';
-import { ChatState, initialChatState } from 'store/chat/state';
+import { ChatHistoryItem, ChatMessage } from 'core/models/chat-history-item';
+import { ChatState, initialChatState, pageSize } from 'store/chat/state';
 import * as a from 'store/chat/actions';
 
 export const chatSlice = createSlice({
@@ -17,12 +17,13 @@ export const chatSlice = createSlice({
       state.historyItems = action.payload;
     },
 
-    getChat: (state: ChatState, _: PayloadAction<a.GetChat>) => {
+    selectChat: (state: ChatState, _: PayloadAction<a.SelectChat>) => {
       state.isChatLoading = true;
     },
-    getChatSuccessfully: (state: ChatState, action: PayloadAction<Chat>) => {
+    getChatSuccessfully: (state: ChatState, action: PayloadAction<a.SelectChatSuccessfully>) => {
       state.isChatLoading = false;
-      state.selectedChat = action.payload;
+      state.messages = action.payload.message;
+      state.selectedChat = action.payload.chat;
     },
 
     getMessages: (state: ChatState, _: PayloadAction<a.GetMessages>) => {
@@ -31,6 +32,17 @@ export const chatSlice = createSlice({
     getMessagesSuccess: (state: ChatState, action: PayloadAction<ChatMessage[]>) => {
       state.areMessagesLoading = false;
       state.messages = state.messages.concat(action.payload).sort((a, b) => new Date(a.timeStamp).getDate() - new Date(b.timeStamp).getDate());
+      state.isAllLoaded = action.payload.length !== pageSize;
+    },
+
+    getPreviousMessages: (state: ChatState, _: PayloadAction<a.GetPreviousMessages>) => {
+      state.isChatLoading = true;
+    },
+
+    getPreviousMessagesSuccessfully: (state: ChatState, action: PayloadAction<ChatMessage[]>) => {
+      state.isChatLoading = false;
+      state.messages = state.messages.concat(action.payload).sort((a, b) => new Date(a.timeStamp).getDate() - new Date(b.timeStamp).getDate());
+      state.isAllLoaded = action.payload.length !== pageSize;
     },
 
     changeConnectionStatus: (state: ChatState, action: PayloadAction<boolean>) => {
@@ -38,12 +50,35 @@ export const chatSlice = createSlice({
     },
     addNewMessage: (state: ChatState, action: PayloadAction<a.AddNewMessage>) => {
       if (state.selectedChat?.id === action.payload.chatId) {
-        state.messages.push({ text: action.payload.text, senderId: action.payload.senderId, timeStamp: new Date(action.payload.timeStamp) });
+        state.messages.push({ id: '', text: action.payload.text, senderId: action.payload.senderId, timeStamp: new Date(action.payload.timeStamp).valueOf() });
       }
+    },
+
+    sendMessage: (state: ChatState, action: PayloadAction<a.SendMessage>) => {
+      state.messages.push({ ...action.payload, timeStamp: new Date().valueOf(), id: '' });
+    },
+
+    updateChatName: (state: ChatState, action: PayloadAction<a.UpdateChatName>) => {
+      const historyItem = state.historyItems.find((x) => x.id === action.payload.chatId);
+      historyItem!.name = action.payload.chatName;
     },
   },
 });
 
 export default chatSlice.reducer;
 
-export const { actionFailed, loadHistory, loadHistorySuccessfully, getChat, getChatSuccessfully, getMessages, getMessagesSuccess, changeConnectionStatus, addNewMessage } = chatSlice.actions;
+export const {
+  actionFailed,
+  loadHistory,
+  loadHistorySuccessfully,
+  selectChat,
+  getChatSuccessfully,
+  getMessages,
+  getMessagesSuccess,
+  changeConnectionStatus,
+  addNewMessage,
+  sendMessage,
+  getPreviousMessages,
+  getPreviousMessagesSuccessfully,
+  updateChatName,
+} = chatSlice.actions;

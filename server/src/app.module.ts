@@ -3,13 +3,13 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
-import { User } from 'src/chat/database/entities/user.entity';
-import { Chat } from 'src/chat/database/entities/chat.entity';
-import { Message } from 'src/chat/database/entities/message.entity';
 import { ChatModule } from 'src/chat/chat.module';
 import { AuthService } from 'src/auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { WebSocketModule } from 'src/websocket/websocket.module';
+import { Chat } from 'src/database/entities/chat.entity';
+import { Message } from 'src/database/entities/message.entity';
+import { User } from 'src/database/entities/user.entity';
 
 @Module({
   imports: [

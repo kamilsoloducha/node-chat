@@ -1,9 +1,8 @@
-import { AxiosError } from 'axios';
 import { FormHeader } from 'core/components/FormHeader';
 import { SignUpButton } from 'core/components/SignUpButton';
 import { TextForm } from 'core/components/TextForm';
-import { UserSession, useUserStorage } from 'core/hooks/useUserStorage';
-import { login, LoginRequest, register, RegisterRequest } from 'core/http/user-http-client.service';
+import { useUserStorage } from 'core/hooks/useUserStorage';
+import { register, RegisterRequest } from 'core/http/user-http-client.service';
 import { useFormik } from 'formik';
 import { registerFormInitialValues, RegisterForm as RegisterFormModel } from 'pages/register/models/register-form.model';
 import { validateRegisterForm } from 'pages/register/services/registration-form.validator';
@@ -13,7 +12,6 @@ import { useNavigate } from 'react-router-dom';
 export function RegisterForm(): ReactElement {
   const [requestError, setRequestError] = useState<string | undefined>('');
   const navigate = useNavigate();
-  const { set } = useUserStorage();
 
   const onRegisterFormSubmit = async (form: RegisterFormModel) => {
     const registerRequest: RegisterRequest = { ...form };
@@ -24,23 +22,9 @@ export function RegisterForm(): ReactElement {
       } else {
         setRequestError(registerResponse.errorMessage);
       }
+      return;
     }
-
-    const loginRequest: LoginRequest = { ...form };
-    const loginResponse = await login(loginRequest);
-
-    if (loginResponse.isSuccessful) {
-      const session: UserSession = {
-        id: loginResponse.userId?.toString(),
-        token: loginResponse.accessToken,
-        name: '',
-        expirationDate: new Date(),
-      };
-      set(session);
-      navigate('/chat');
-    } else {
-      setRequestError(loginResponse.errorMessage);
-    }
+    navigate('/login');
   };
 
   const formik = useFormik({ initialValues: registerFormInitialValues, onSubmit: onRegisterFormSubmit, validate: validateRegisterForm, validateOnBlur: true });

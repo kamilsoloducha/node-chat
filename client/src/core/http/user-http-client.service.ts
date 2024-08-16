@@ -63,4 +63,26 @@ export type LoginResponse = {
   isSuccessful: true;
   userId: string;
   accessToken: string;
+  expirationDate: string;
+};
+
+export async function refresh(request: RefreshRequest): Promise<RefreshResponse | HttpError> {
+  try {
+    const { data } = await http.put<RefreshResponse, AxiosResponse<RefreshResponse, RefreshRequest>, RefreshRequest>(`${USERS_PATH}/refresh`, request);
+    return { ...data, isSuccessful: true };
+  } catch (error) {
+    return { errorMessage: 'Internal server error. Please try again later.', isSuccessful: false };
+  }
+}
+
+export type RefreshRequest = {
+  token: string;
+  expirationDate: Date;
+};
+
+export type RefreshResponse = {
+  isSuccessful: true;
+  userId: string;
+  accessToken: string;
+  expirationDate: string;
 };

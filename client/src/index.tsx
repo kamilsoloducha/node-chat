@@ -1,4 +1,5 @@
 import 'tailwindcss/tailwind.css';
+import 'style.css';
 import React from 'react';
 import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements } from 'react-router-dom';
 import { createRoot } from 'react-dom/client';
@@ -11,6 +12,7 @@ import { Provider } from 'react-redux';
 import { store } from 'store/store';
 import { Websocket } from 'core/websockets/websocket';
 import AxiosEx from 'core/components/AxiosEx';
+import { Layout } from 'core/components/Layout';
 
 const container = document.getElementById('root') as HTMLDivElement;
 const root = createRoot(container);
@@ -18,7 +20,7 @@ const root = createRoot(container);
 const routes = createRoutesFromElements(
   <Route
     path="/"
-    element={<Root />}
+    element={<Layout />}
   >
     <Route
       path="register"

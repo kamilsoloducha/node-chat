@@ -1,33 +1,34 @@
+import { memo, ReactElement } from 'react';
+import { selectSelectedChat } from 'store/chat/selectors';
+import { useAppSelector } from 'store/store';
+import { MessageInput } from 'pages/main/components/messageInput/messageInput';
+import { MessagesContainer } from 'pages/main/components/messagesContainer/messagesContainer';
 import { useUserStorage } from 'core/hooks/useUserStorage';
-import { socketProvider } from 'core/websockets/socket.service';
-import { WsMessage } from 'core/websockets/websocket';
-import { ReactElement, useState } from 'react';
+import { ChatHeader } from 'pages/main/components/chatHeader/ChatHeader';
 
-export function Chat(): ReactElement {
-  const [message, setMessage] = useState<string>('');
+export const Chat = memo(function Chat(): ReactElement {
+  const selectedChat = useAppSelector(selectSelectedChat);
+  const userId = useUserStorage().get()?.id ?? '';
 
-  const sendMessage = () => {
-    const { get } = useUserStorage();
-    const userId = get()?.id ?? '';
-    const wsMessage: WsMessage = {
-      chatId: '1',
-      text: message,
-      senderId: userId,
-      timeStamp: new Date().toString(),
-    };
-    socketProvider.sendMessage(wsMessage);
-  };
+  if (!selectedChat) {
+    return <></>;
+  }
 
   return (
-    <>
-      <input
-        type="text"
-        onChange={(e) => setMessage(e.target.value)}
-        value={message}
-        placeholder="Enter a message..."
-        autoComplete="off"
+    <div className="relative h-full flex flex-col">
+      <ChatHeader
+        id={selectedChat.id}
+        name={selectedChat.name}
       />
-      <button onClick={sendMessage}>Send</button>
-    </>
+      <div className="flex-1 overflow-y-auto">
+        <MessagesContainer chatId={selectedChat.id} />
+      </div>
+      <footer className=" bg-blue-400 w-full">
+        <MessageInput
+          chatId={selectedChat.id}
+          userId={userId}
+        />
+      </footer>
+    </div>
   );
-}
+});

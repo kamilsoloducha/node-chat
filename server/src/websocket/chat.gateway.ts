@@ -1,11 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import { OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { IHasher } from 'src/api/services/hasher';
 
 @WebSocketGateway(3001, { transports: ['websocket'] })
 @Injectable()
 export class ChatGateway implements OnGatewayDisconnect<Socket> {
+  private newMessageListeners: NewMessageListener[] = [];
+
   private clients: Set<SocketCustomInfo> = new Set();
   @WebSocketServer() server: Server;
 
@@ -24,8 +26,11 @@ export class ChatGateway implements OnGatewayDisconnect<Socket> {
   }
 
   @SubscribeMessage('messageToServer')
-  handleMessage(client: Socket, payload: WebSocketMessage): void {
+  async handleMessage(client: Socket, payload: WebSocketMessage): Promise<void> {
     console.log(`Message from client ${client.id}: ${payload}`);
+    for (let listener of this.newMessageListeners) {
+      await listener(payload);
+    }
   }
 
   @SubscribeMessage('connectUser')
@@ -45,6 +50,17 @@ export class ChatGateway implements OnGatewayDisconnect<Socket> {
       item.socket.emit('message-sent', message);
     }
   }
+
+  addNewMessageListener(listener: NewMessageListener): void {
+    this.newMessageListeners.push(listener);
+  }
+
+  removeNewMessageListener(listener: NewMessageListener): void {
+    const index = this.newMessageListeners.indexOf(listener);
+    if (index > -1) {
+      this.newMessageListeners.splice(index, 1);
+    }
+  }
 }
 
 export type WebSocketMessage = {
@@ -62,3 +78,5 @@ export type SocketCustomInfo = {
   userId: number;
   socket: Socket;
 };
+
+export type NewMessageListener = (message: WebSocketMessage) => void | Promise<void>;

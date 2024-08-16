@@ -1,19 +1,39 @@
 @host = http://localhost:3000
 
 ### register user
+# @name register
 POST {{host}}/users/register
 Content-Type: application/json
 
 {
-    "userName": "kamil",
-    "password": "password"
+    "userName": "test1",
+    "password": "asdfasdf"
 }
 
 ### login user
+# @name login
 PUT {{host}}/users/login
 Content-Type: application/json
 
 {
     "userName": "test1",
     "password": "asdfasdf"
+}
+
+###
+
+
+@userId = {{login.response.body.userId}}
+@accessToken = {{login.response.body.accessToken}}
+@expirationDate = {{login.response.body.expirationDate}}
+
+### refresh token
+# @name refresh
+PUT {{host}}/users/refresh
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "token": "{{accessToken}}",
+  "expirationDate": "{{expirationDate}}"
 }

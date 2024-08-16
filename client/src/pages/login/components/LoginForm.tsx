@@ -25,7 +25,7 @@ export function LoginForm(): ReactElement {
         id: loginResponse.userId,
         token: loginResponse.accessToken,
         name: form.userName,
-        expirationDate: new Date(),
+        expirationDate: new Date(loginResponse.expirationDate).valueOf(),
       };
       set(session);
 

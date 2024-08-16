@@ -1,5 +1,11 @@
+import { useUserStorage } from 'core/hooks/useUserStorage';
 import { ReactElement } from 'react';
+import { Navigate } from 'react-router-dom';
 
 export function LogoutPage(): ReactElement {
-  return <></>;
+  const { remove } = useUserStorage();
+
+  remove();
+
+  return <Navigate to={'/login'} />;
 }

@@ -1,0 +1,7 @@
+.chat-name-container>button {
+  visibility: hidden;
+}
+
+.chat-name-container:hover>button {
+  visibility: visible;
+}

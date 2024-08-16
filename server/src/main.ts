@@ -1,3 +1,4 @@
+import './utils/date';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { validationMiddelware } from 'src/api/middlewares/validation.middleware';

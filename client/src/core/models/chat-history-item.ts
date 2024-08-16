@@ -15,6 +15,7 @@ export type ChatHistoryItem = {
 };
 
 export type ChatMessage = {
+  id: string;
   text: string;
   senderId: string;
   timeStamp: number;

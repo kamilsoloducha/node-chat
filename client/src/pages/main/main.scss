@@ -1,0 +1,7 @@
+.history-container>button {
+  visibility: hidden;
+}
+
+.history-container:hover>button {
+  visibility: visible;
+}

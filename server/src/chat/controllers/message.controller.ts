@@ -1,13 +1,12 @@
-import { Body, Controller, Get, HttpStatus, Param, Post, Res } from '@nestjs/common';
-import { hash } from 'crypto';
+import { Body, Controller, Get, HttpStatus, Param, Post, Query, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { IHasher } from 'src/api/services/hasher';
-import { ChatService } from 'src/chat/database/chat.service';
-import { Message } from 'src/chat/database/entities/message.entity';
-import { MessageService } from 'src/chat/database/message.service';
 import { CreateMessageRequest } from 'src/chat/models/createMessage.request';
 import { CreateMessageResponse } from 'src/chat/models/createMessage.response';
 import { MessageResponse } from 'src/chat/models/message.response';
+import { ChatService } from 'src/database/chat.service';
+import { Message } from 'src/database/entities/message.entity';
+import { MessageService } from 'src/database/message.service';
 import { ChatGateway, WebSocketMessage } from 'src/websocket/chat.gateway';
 
 @Controller({ path: 'messages' })
@@ -47,6 +46,33 @@ export class MessageController {
     response.status(HttpStatus.OK).json(messages);
   }
 
+  @Get()
+  async getMessages(@Query('chatId') chatId: string, @Query('skip') skip: string, @Query('take') take: string, @Res() response: Response): Promise<void> {
+    const decodeChatId = this.hasher.decode(chatId);
+    const takeParam = parseInt(take);
+    const skipParam = parseInt(skip);
+
+    const messages = (await this.messageService.find(decodeChatId, takeParam, skipParam))
+      .sort((x, y) => x.timestamp.valueOf() - y.timestamp.valueOf())
+      .map<MessageResponse>((message) => {
+        return this.mapToMessageResponse(message);
+      });
+
+    response.status(HttpStatus.OK).json(messages);
+  }
+
+  @Get('incremental')
+  async getMessagesByMessageId(@Query('chatId') chatId: string, @Query('messageId') messageId: string, @Query('take') take: string, @Res() response: Response): Promise<void> {
+    const decodeChatId = this.hasher.decode(chatId);
+    const decodedMessageId = this.hasher.decode(messageId);
+    const takeParam = parseInt(take);
+    const messages = (await this.messageService.findByMessageId2(decodeChatId, decodedMessageId, takeParam)).map<MessageResponse>((message) => {
+      return this.mapToMessageResponse(message);
+    });
+
+    response.status(HttpStatus.OK).json(messages);
+  }
+
   @Post()
   async create(@Body() request: CreateMessageRequest, @Res() response: Response): Promise<void> {
     const chatId = this.hasher.decode(request.chatId);
@@ -80,5 +106,16 @@ export class MessageController {
     };
 
     response.status(HttpStatus.CREATED).json(messageResponse);
+  }
+
+  mapToMessageResponse(message: Message): MessageResponse {
+    const senderId = this.hasher.encode(message.userId);
+    const id = this.hasher.encode(message.id);
+    return {
+      senderId,
+      id,
+      text: message.text,
+      timeStamp: message.timestamp,
+    };
   }
 }

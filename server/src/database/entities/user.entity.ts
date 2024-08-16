@@ -1,12 +1,5 @@
-import { Chat } from 'src/chat/database/entities/chat.entity';
-import {
-  Column,
-  Entity,
-  JoinTable,
-  ManyToMany,
-  PrimaryGeneratedColumn,
-  Unique,
-} from 'typeorm';
+import { Chat } from './chat.entity';
+import { Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn, Unique } from 'typeorm';
 
 @Entity({ name: 'users' })
 @Unique('username-unq-const', ['userName'])
