@@ -110,3 +110,47 @@ export type SendMessageRequest = {
   senderId: string;
   text: string;
 };
+
+export async function updateChatName(chatId: string, request: UpdateChatNameRequest): Promise<{ isSuccessful: true } | HttpError> {
+  try {
+    await http.put<unknown, AxiosResponse<unknown, unknown>, unknown>(`chats/${chatId}/name`, request);
+    return { isSuccessful: true };
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      const httpError: HttpError = {
+        isSuccessful: false,
+        statusCode: error.response?.status,
+        friendlyErrorMessage: undefined,
+        errorMessage: error.message,
+        errorCode: error.response?.data.errorCode,
+      };
+
+      return httpError as any;
+    }
+    return { errorMessage: 'Internal server error. Please try again later.', isSuccessful: false };
+  }
+}
+
+export type UpdateChatNameRequest = {
+  name: string;
+};
+
+export async function addToFavorite(chatId: string, userId: string): Promise<{ isSuccessful: true } | HttpError> {
+  try {
+    await http.put<unknown, AxiosResponse<unknown, unknown>, unknown>(`chats/${chatId}/addToFavorite/${userId}`);
+    return { isSuccessful: true };
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      const httpError: HttpError = {
+        isSuccessful: false,
+        statusCode: error.response?.status,
+        friendlyErrorMessage: undefined,
+        errorMessage: error.message,
+        errorCode: error.response?.data.errorCode,
+      };
+
+      return httpError as any;
+    }
+    return { errorMessage: 'Internal server error. Please try again later.', isSuccessful: false };
+  }
+}

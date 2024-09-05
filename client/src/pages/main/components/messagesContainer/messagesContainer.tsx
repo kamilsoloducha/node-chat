@@ -78,7 +78,6 @@ export function MessagesContainer({ chatId }: MessagesContainerProps): ReactElem
                 alignment={group.senderId === userId ? 'right' : 'left'}
                 key={index}
               />
-              <hr />
             </Fragment>
           );
         })}
@@ -90,13 +89,16 @@ export function MessagesContainer({ chatId }: MessagesContainerProps): ReactElem
 
 function splitOnGroup(messages: ChatMessage[]): MessageGroup[] {
   const result: MessageGroup[] = [];
+  let previousMessage: ChatMessage | undefined;
 
   if (messages.length > 0) {
+    previousMessage = messages[0];
     result.push({ senderId: messages[0].senderId, messages: [messages[0]] });
   }
 
   for (let i = 1; i < messages.length; i++) {
-    if (messages[i].senderId === result.at(-1)?.senderId) {
+    const currentMessage = messages[i];
+    if (currentMessage.senderId === previousMessage?.senderId && new Date(currentMessage.timeStamp).isSameDay(previousMessage.timeStamp)) {
       result.at(-1)?.messages.push(messages[i]);
     } else {
       const newGroup: MessageGroup = {
@@ -105,6 +107,7 @@ function splitOnGroup(messages: ChatMessage[]): MessageGroup[] {
       };
       result.push(newGroup);
     }
+    previousMessage = currentMessage;
   }
 
   return result;

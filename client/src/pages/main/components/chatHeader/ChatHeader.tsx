@@ -1,6 +1,9 @@
 import { DropDown } from 'core/components/DropDown';
+import { useUserStorage } from 'core/hooks/useUserStorage';
 import { ChatName } from 'pages/main/components/chatName/ChatName';
 import { ReactElement } from 'react';
+import { addToFavourite } from 'store/chat/reducer';
+import { useAppDispatch } from 'store/store';
 
 type ChatHeaderProps = {
   id: string;
@@ -8,6 +11,9 @@ type ChatHeaderProps = {
 };
 
 export function ChatHeader({ id, name }: ChatHeaderProps): ReactElement {
+  const userId = useUserStorage().get()?.id!;
+  const dispach = useAppDispatch();
+
   const dropDownActions: DropDownModel[] = [
     {
       label: 'Invite',
@@ -15,7 +21,9 @@ export function ChatHeader({ id, name }: ChatHeaderProps): ReactElement {
     },
     {
       label: 'Add to favorite',
-      action: () => console.log('Add to favorite'),
+      action: () => {
+        dispach(addToFavourite({ chatId: id, userId }));
+      },
     },
   ];
 

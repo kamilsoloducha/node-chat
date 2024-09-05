@@ -1,8 +1,8 @@
-import { Body, Controller, Get, HttpStatus, Param, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Param, Post, Put, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { CreteChatResponse } from 'src/chat/models/create-chat.response';
 import { CreateChatRequest } from 'src/chat/models/createChat.request';
-import { InviteUserRequest } from 'src/chat/models/invite-user.request';
+import { InviteUserRequest, UpdateChatNameRequest } from 'src/chat/models/invite-user.request';
 import { IHasher } from 'src/api/services/hasher';
 import { ChatService } from 'src/database/chat.service';
 import { Chat } from 'src/database/entities/chat.entity';
@@ -104,6 +104,35 @@ export class ChatController {
     chat.users.push(invitedUser);
 
     this.chatService.save(chat);
+
+    response.sendStatus(HttpStatus.ACCEPTED);
+  }
+
+  @Put(':chatId/name')
+  async changeName(@Param() { chatId }: { chatId: string }, @Body() request: UpdateChatNameRequest, @Res() response: Response): Promise<void> {
+    const decodedChatId = this.hasher.decode(chatId);
+    const chat = await this.chatService.findChatById(decodedChatId);
+
+    chat.name = request.name;
+    this.chatService.save(chat);
+
+    response.sendStatus(HttpStatus.ACCEPTED);
+  }
+
+  @Put(':chatId/addToFavorite/:userId')
+  async addToFavorite(@Param() { chatId, userId }: { chatId: string; userId: string }, @Res() response: Response): Promise<void> {
+    const decodedChatId = this.hasher.decode(chatId);
+    const decodedUserId = this.hasher.decode(userId);
+
+    const user = await this.userService.findById(decodedUserId);
+    const chat = await this.chatService.findChatById(decodedChatId);
+
+    if (user.favorites.find((x) => x.id === chat.id)) {
+      response.sendStatus(HttpStatus.ACCEPTED);
+    }
+    user.favorites.push(chat);
+
+    this.userService.save(user);
 
     response.sendStatus(HttpStatus.ACCEPTED);
   }

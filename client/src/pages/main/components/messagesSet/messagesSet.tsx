@@ -7,6 +7,18 @@ export function MessagesSet({ senderId, messages, alignment }: MessagesSetProps)
   const isLeft = alignment === 'left';
   return (
     <div className={`relative flex w-full flex-col flex-wrap ${isLeft ? 'content-start justify-start' : 'content-end items-end'} pb-1`}>
+      {isLeft ? (
+        <>
+          <img
+            className="absolute left-[-40px] mr-2"
+            src="./avatar.svg"
+            width="32px"
+            height="32px"
+          />
+        </>
+      ) : (
+        <></>
+      )}
       <MessageInfo
         alignment={alignment}
         senderId={senderId}
@@ -21,8 +33,9 @@ export function MessagesSet({ senderId, messages, alignment }: MessagesSetProps)
             <div className="mb-px">
               <Message
                 text={item.text}
-                position={position}
                 alignment={alignment}
+                isFirst={index === 0}
+                isLast={index === array.length - 1}
               />
             </div>
           </Fragment>

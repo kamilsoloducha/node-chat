@@ -1,9 +1,9 @@
 import 'tailwindcss/tailwind.css';
 import 'style.css';
+import './utils/date';
 import React from 'react';
 import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements } from 'react-router-dom';
 import { createRoot } from 'react-dom/client';
-import { Root } from 'pages/root';
 import { LogoutPage } from 'pages/logout.page';
 import { RegisterPage } from 'pages/register/register.page';
 import { LoginPage } from 'pages/login/login.page';

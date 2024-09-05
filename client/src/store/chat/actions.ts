@@ -38,3 +38,8 @@ export type UpdateChatName = {
   chatId: string;
   chatName: string;
 };
+
+export type AddToFavourite = {
+  chatId: string;
+  userId: string;
+};

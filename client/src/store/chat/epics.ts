@@ -1,9 +1,19 @@
 import { Action, PayloadAction } from '@reduxjs/toolkit';
-import { mergeMap, Observable, switchMap } from 'rxjs';
-import { actionFailed, getChatSuccessfully, getPreviousMessages, getPreviousMessagesSuccessfully, loadHistory, loadHistorySuccessfully, selectChat } from 'store/chat/reducer';
-import { getChat, getMessages, getUsersChat, getPreviousMessages as apiGetPreviousMessages } from 'core/http/chat-http-client.service';
+import { mergeMap, Observable, of, switchMap } from 'rxjs';
+import {
+  actionFailed,
+  addToFavourite,
+  getChatSuccessfully,
+  getPreviousMessages,
+  getPreviousMessagesSuccessfully,
+  loadHistory,
+  loadHistorySuccessfully,
+  selectChat,
+  updateChatName,
+} from 'store/chat/reducer';
+import * as api from 'core/http/chat-http-client.service';
 import { ofType } from 'redux-observable';
-import { GetPreviousMessages, SelectChat } from 'store/chat/actions';
+import { AddToFavourite, GetPreviousMessages, SelectChat, UpdateChatName } from 'store/chat/actions';
 import { ChatMessage } from 'core/models/chat-history-item';
 import { pageSize } from 'store/chat/state';
 
@@ -11,7 +21,7 @@ export const loadHistoryEpic = (action$: Observable<Action>): Observable<Action>
   action$.pipe(
     ofType(loadHistory.type),
     mergeMap(async (_) => {
-      const response = await getUsersChat(1);
+      const response = await api.getUsersChat(1);
       if (response.isSuccessful) {
         return loadHistorySuccessfully(response.items);
       } else {
@@ -24,7 +34,7 @@ export const selectChatEpic = (action$: Observable<Action>): Observable<Action> 
   action$.pipe(
     ofType(selectChat.type),
     switchMap(async (action: PayloadAction<SelectChat>) => {
-      const [messagesResponse, chatResponse] = await Promise.all([getMessages(action.payload.userId, action.payload.chatId, pageSize), getChat(action.payload.chatId)]);
+      const [messagesResponse, chatResponse] = await Promise.all([api.getMessages(action.payload.userId, action.payload.chatId, pageSize), api.getChat(action.payload.chatId)]);
       if (messagesResponse.isSuccessful && chatResponse.isSuccessful) {
         return getChatSuccessfully({
           message: messagesResponse.items.map(mapChatMessages),
@@ -40,9 +50,36 @@ export const getPreviousMessagesEpic = (action$: Observable<Action>): Observable
   action$.pipe(
     ofType(getPreviousMessages.type),
     switchMap(async (action: PayloadAction<GetPreviousMessages>) => {
-      const messagesResponse = await apiGetPreviousMessages(action.payload.chatId, action.payload.messageId, pageSize);
+      const messagesResponse = await api.getPreviousMessages(action.payload.chatId, action.payload.messageId, pageSize);
       if (messagesResponse.isSuccessful) {
         return getPreviousMessagesSuccessfully(messagesResponse.items.map(mapChatMessages));
+      } else {
+        return actionFailed();
+      }
+    }),
+  );
+
+export const updateChatNameEpic = (action$: Observable<Action>): Observable<Action | never> =>
+  action$.pipe(
+    ofType(updateChatName.type),
+    mergeMap(async (action: PayloadAction<UpdateChatName>) => {
+      const request: api.UpdateChatNameRequest = { name: action.payload.chatName };
+      const messagesResponse = await api.updateChatName(action.payload.chatId, request);
+      if (messagesResponse.isSuccessful) {
+        return {} as never;
+      } else {
+        return actionFailed();
+      }
+    }),
+  );
+
+export const addToFavouriteEpic = (action$: Observable<Action>): Observable<Action | never> =>
+  action$.pipe(
+    ofType(addToFavourite.type),
+    mergeMap(async (action: PayloadAction<AddToFavourite>) => {
+      const messagesResponse = await api.addToFavorite(action.payload.chatId, action.payload.userId);
+      if (messagesResponse.isSuccessful) {
+        return {} as never;
       } else {
         return actionFailed();
       }

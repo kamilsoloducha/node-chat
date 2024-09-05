@@ -13,6 +13,9 @@ export const History = memo(function History(): ReactElement {
   const { get } = useUserStorage();
 
   const selectChat = (chatId: string) => {
+    if (chatId === selectedChat?.id) {
+      return;
+    }
     const userId = get()?.id!;
     dispatch(a.selectChat({ chatId, userId }));
   };

@@ -3,7 +3,6 @@ import { WsMessage } from 'core/websockets/websocket';
 import { ReactElement, useCallback, useEffect, useRef, useState } from 'react';
 import { useAppDispatch } from 'store/store';
 import * as a from 'store/chat/reducer';
-import { useEffectOnce } from 'core/hooks/useEffectOnce';
 
 type MessageInputProps = {
   chatId: string;
@@ -19,8 +18,6 @@ export function MessageInput({ chatId, userId }: MessageInputProps): ReactElemen
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
   };
-
-  useEffectOnce(() => {});
 
   useEffect(() => {
     const keyDownListener = (e: KeyboardEvent) => {

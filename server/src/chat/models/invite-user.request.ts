@@ -3,3 +3,6 @@ export class InviteUserRequest {
   invitedId: string;
   chatId: string;
 }
+export class UpdateChatNameRequest {
+  name: string;
+}

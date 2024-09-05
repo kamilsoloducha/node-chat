@@ -62,6 +62,8 @@ export const chatSlice = createSlice({
       const historyItem = state.historyItems.find((x) => x.id === action.payload.chatId);
       historyItem!.name = action.payload.chatName;
     },
+
+    addToFavourite: (_: ChatState, action: PayloadAction<a.AddToFavourite>) => {},
   },
 });
 
@@ -81,4 +83,5 @@ export const {
   getPreviousMessages,
   getPreviousMessagesSuccessfully,
   updateChatName,
+  addToFavourite,
 } = chatSlice.actions;

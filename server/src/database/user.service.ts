@@ -34,6 +34,10 @@ export class UserService {
   }
 
   findById(userId: number): Promise<User> {
-    return this.usersRepository.createQueryBuilder('user').where('user.id = :userId', { userId }).getOne();
+    return this.usersRepository.createQueryBuilder('user').leftJoinAndSelect('user.favorites', 'favorites').where('user.id = :userId', { userId }).getOne();
+  }
+
+  save(user: User): Promise<User> {
+    return this.usersRepository.save(user);
   }
 }

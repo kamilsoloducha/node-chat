@@ -1,5 +1,5 @@
 import { Chat } from './chat.entity';
-import { Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryColumn, PrimaryGeneratedColumn, Unique } from 'typeorm';
 
 @Entity({ name: 'users' })
 @Unique('username-unq-const', ['userName'])
@@ -22,4 +22,8 @@ export class User {
   @ManyToMany(() => Chat)
   @JoinTable({ name: 'users_charts' })
   chats: Chat[];
+
+  @ManyToMany(() => Chat)
+  @JoinTable({ name: 'favorites' })
+  favorites: Chat[];
 }
