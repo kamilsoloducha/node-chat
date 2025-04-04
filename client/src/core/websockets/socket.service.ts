@@ -1,30 +1,48 @@
-import { WsConnectUser, WsMessage } from 'core/websockets/websocket';
+import { WsMessage } from 'core/websockets/websocket';
 import { io, Socket } from 'socket.io-client';
 
 const WEBSOCKET_HOST = import.meta.env.VITE_WEBSOCKET_HOST;
-let socket: Socket;
 if (WEBSOCKET_HOST === undefined) {
   console.error('VITE_WEBSOCKET_HOST is not set');
   throw Error();
-} else {
-  socket = io(WEBSOCKET_HOST, { transports: ['websocket'], autoConnect: false });
 }
 
 export const socketProvider: SocketProvider = {
-  socket: socket,
-  connect: () => {
-    socketProvider.socket.connect();
+  socket: undefined,
+  connect: (token) => {
+    if (!token || socketProvider.socket) {
+      return;
+    }
+    const socket = io(WEBSOCKET_HOST, {
+      transports: ['websocket'],
+      autoConnect: false,
+      auth: {
+        token: token + 'asdf',
+      },
+    });
+
+    socketProvider.socket = socket;
+
+    try {
+      const result = socketProvider.socket.connect();
+      console.log(result.connected);
+    } catch (error: unknown) {
+      console.log(error);
+    }
   },
   sendMessage: (message: WsMessage) => {
+    if (!socketProvider.socket) {
+      return;
+    }
     console.log(message);
     socketProvider.socket.emit('messageToServer', message);
   },
 };
 
 export type SocketProvider = {
-  socket: Socket;
+  socket: Socket | undefined;
 
-  connect: () => void;
+  connect: (token: string | undefined) => void;
 
   sendMessage: (message: WsMessage) => void;
 };

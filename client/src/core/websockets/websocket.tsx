@@ -16,8 +16,9 @@ export function Websocket({ children }: { children: ReactElement }): ReactElemen
 
   const { get } = useUserStorage();
   const userId = get()?.id ?? '';
+  const token = get()?.token;
   if (userId) {
-    webSocketContext.connect();
+    webSocketContext.connect(token);
   }
 
   useEffectOnce(() => {
@@ -38,14 +39,17 @@ export function Websocket({ children }: { children: ReactElement }): ReactElemen
       dispatch(addNewMessage(payload));
     }
 
-    webSocketContext.socket.on('connect', onConnect);
-    webSocketContext.socket.on('disconnect', onDisconnect);
-    webSocketContext.socket.on('message-sent', onMessageReceived);
+    webSocketContext.socket?.on('connect', onConnect);
+    webSocketContext.socket?.on('error', (test: any) => console.log('ws error', test));
+    webSocketContext.socket?.on('connection', (test: any) => console.log('ws error', test));
+    webSocketContext.socket?.on('disconnect', onDisconnect);
+    webSocketContext.socket?.on('message-sent', onMessageReceived);
 
     return () => {
-      webSocketContext.socket.off('connect', onConnect);
-      webSocketContext.socket.off('disconnect', onDisconnect);
-      webSocketContext.socket.off('message-sent', onMessageReceived);
+      webSocketContext.socket?.off('connect', onConnect);
+      webSocketContext.socket?.off('error', () => console.log('ws error'));
+      webSocketContext.socket?.off('disconnect', onDisconnect);
+      webSocketContext.socket?.off('message-sent', onMessageReceived);
     };
   }, []);
 

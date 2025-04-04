@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { IHasher } from 'src/api/services/hasher';
+import { TokenInfo } from 'src/auth.service';
 
 @WebSocketGateway(3001, { transports: ['websocket'] })
 @Injectable()
@@ -11,7 +13,10 @@ export class ChatGateway implements OnGatewayDisconnect<Socket> {
   private clients: Set<SocketCustomInfo> = new Set();
   @WebSocketServer() server: Server;
 
-  constructor(private readonly hasher: IHasher) {}
+  constructor(
+    private readonly hasher: IHasher,
+    private readonly jwtService: JwtService,
+  ) {}
 
   handleDisconnect(client: Socket) {
     let socketInfo: SocketCustomInfo;
@@ -20,9 +25,19 @@ export class ChatGateway implements OnGatewayDisconnect<Socket> {
         socketInfo = item;
       }
     }
-    console.log(`Client disconnected: ${client.id} / ${socketInfo.userId}`);
 
-    this.clients.delete(socketInfo);
+    if (socketInfo) {
+      console.log(`Client disconnected: ${client.id} / ${socketInfo.userId}`);
+      this.clients.delete(socketInfo);
+    }
+  }
+
+  async handleConnection(client: Socket): Promise<void> {
+    if (!(await this.isAuthorize(client))) {
+      console.log('handleConnection', 'Unauthorized');
+      return;
+    }
+    console.log('handleConnetion', client.id);
   }
 
   @SubscribeMessage('messageToServer')
@@ -60,6 +75,23 @@ export class ChatGateway implements OnGatewayDisconnect<Socket> {
     if (index > -1) {
       this.newMessageListeners.splice(index, 1);
     }
+  }
+
+  private async isAuthorize(client: Socket): Promise<boolean> {
+    const token = client.handshake.auth.token;
+    if (!token) {
+      console.log('Websocket token is null');
+      return false;
+    }
+
+    let payload: any;
+    try {
+      payload = await this.jwtService.verifyAsync(token, {
+        secret: process.env.JWT_SECRET,
+      });
+    } catch (error) {}
+
+    return payload?.username !== undefined;
   }
 }
 

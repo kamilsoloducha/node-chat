@@ -29,7 +29,7 @@ export function LoginForm(): ReactElement {
       };
       set(session);
 
-      socketProvider.connect();
+      socketProvider.connect(loginResponse.accessToken);
 
       navigate('/chat');
     } else {
